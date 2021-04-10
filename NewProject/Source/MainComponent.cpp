@@ -3,6 +3,8 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
+    formatManager.registerBasicFormats();
+
     addAndMakeVisible(fileTreeComp);
     addAndMakeVisible(fileLabel);
 
@@ -53,13 +55,25 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    // Your audio-processing code goes here!
+    int srcSize = audioSamples.size();
 
-    // For more details, see the help for AudioProcessor::getNextAudioBlock()
+    if (srcSize > 0) {
+        /* loop through audio */
+        audioCtr = audioCtr % srcSize;
 
-    // Right now we are not producing any data, in which case we need to clear the buffer
-    // (to prevent the output of random noise)
-    bufferToFill.clearActiveBufferRegion();
+        for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); channel++) {
+            float* channelPtr = bufferToFill.buffer->getWritePointer(channel);
+            for (int sample = 0; sample < bufferToFill.buffer->getNumSamples(); sample++) {
+                channelPtr[sample] = audioSamples[(audioCtr + sample) % srcSize];
+            }
+        }
+
+        audioCtr = (audioCtr + bufferToFill.buffer->getNumSamples()) % srcSize;
+    }
+    else {
+        bufferToFill.clearActiveBufferRegion();
+    }
+    
 }
 
 void MainComponent::releaseResources()
