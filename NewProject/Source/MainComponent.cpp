@@ -5,8 +5,12 @@ MainComponent::MainComponent()
 {
     formatManager.registerBasicFormats();
 
+    midiLabel.setJustificationType(juce::Justification::centredTop);
+    samplesLabel.setJustificationType(juce::Justification::centred);
+
     addAndMakeVisible(fileTreeComp);
-    addAndMakeVisible(fileLabel);
+    addAndMakeVisible(midiLabel);
+    addAndMakeVisible(samplesLabel);
 
     directoryList.setDirectory(juce::File::getSpecialLocation(juce::File::userHomeDirectory), true, true);
 
@@ -102,5 +106,6 @@ void MainComponent::resized()
     auto fBounds = r.removeFromLeft(240);
     fileTreeComp.setBounds(fBounds);
 
-    fileLabel.setBounds(r);
+    midiLabel.setBounds(r);
+    samplesLabel.setBounds(r);
 }

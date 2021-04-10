@@ -30,28 +30,46 @@ private:
     std::vector<float> audioSamples;
     int audioCtr = 0;
 
+    juce::MidiFile midiFile;
+
     juce::AudioFormatManager formatManager;
     juce::TimeSliceThread thread{ "audio file preview" };
     juce::DirectoryContentsList directoryList{ nullptr, thread };
     juce::FileTreeComponent fileTreeComp{ directoryList };
-    juce::Label fileLabel{ {}, "No file selected" };
+
+    juce::Label midiLabel{ {}, "Midi file: none" };
+    juce::Label samplesLabel{ {}, "Samples file: none" };
 
     void selectionChanged() override {}
     void fileClicked(const juce::File&, const juce::MouseEvent&) override {}
     void fileDoubleClicked(const juce::File&) override {
         juce::File selectedFile = fileTreeComp.getSelectedFile();
-        juce::AudioFormatReader* reader = formatManager.createReaderFor(selectedFile);
+        
+        if (!selectedFile.getFileExtension().toLowerCase().compare(".mid") ||
+            !selectedFile.getFileExtension().toLowerCase().compare(".midi")) {
+            /* Load midi file */
+            midiLabel.setText("Midi file: " + selectedFile.getFileName(), juce::dontSendNotification);
 
-        if (reader != nullptr) {
-            /* accepted audio file format -> load samples to audioSamples buffer */
-            fileLabel.setText(selectedFile.getFileName(), juce::dontSendNotification);
-            
-            audioSamples = std::vector<float>(reader->lengthInSamples);
-            std::array<float*, 1>channels = { audioSamples.data() };
-            reader->read(channels.data(), 1, 0, audioSamples.size());
+            midiFile.readFrom(juce::FileInputStream(selectedFile));
 
-            delete reader;
+            std::cout << "Loaded MIDI file\n";
         }
+        else {
+            /* Try to load audio file */
+            juce::AudioFormatReader* reader = formatManager.createReaderFor(selectedFile);
+
+            if (reader != nullptr) {
+                /* Load audio file as audioSamples */
+                samplesLabel.setText("Samples file: " + selectedFile.getFileName(), juce::dontSendNotification);
+
+                audioSamples = std::vector<float>(reader->lengthInSamples);
+                std::array<float*, 1>channels = { audioSamples.data() };
+                reader->read(channels.data(), 1, 0, audioSamples.size());
+
+                delete reader;
+            }
+        }
+        
     }
     void browserRootChanged(const juce::File&) override {}
 
