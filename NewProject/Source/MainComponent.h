@@ -28,17 +28,19 @@ private:
     //==============================================================================
     float timeCtr = 0;
     double _sampleRate;
+    float bpm = 120;
 
     std::vector< std::vector<float> > audioSnippets;
     std::vector<int> audioCtr;
 
     juce::MidiFile midiFile;
+    int midiTicksPerQuarterNote;
     int midiIdx = 0;
 
     juce::AudioFormatManager formatManager;
 
-    juce::Label midiLabel{ {}, "Midi file: none" };
-    juce::Label samplesLabel{ {}, "Samples file: none" };
+    /* components */
+    juce::Slider bpmSlider{ juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::TextBoxBelow };
 
     void selectionChanged() override {}
     void fileClicked(const juce::File&, const juce::MouseEvent&) override {}

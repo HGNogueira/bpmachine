@@ -6,11 +6,17 @@ MainComponent::MainComponent()
 {
     this->loadAssets();
 
-    midiLabel.setJustificationType(juce::Justification::centredTop);
-    samplesLabel.setJustificationType(juce::Justification::centred);
+    bpmSlider.setRange(
+        1,
+        240,
+        1);
+    bpmSlider.setValue(bpm, juce::NotificationType::dontSendNotification);
+    bpmSlider.onValueChange = 
+        [this](void) {
+            bpm = bpmSlider.getValue();
+        };
 
-    addAndMakeVisible(midiLabel);
-    addAndMakeVisible(samplesLabel);
+    addAndMakeVisible(bpmSlider);
 
     // Make sure you set the size of the component after
     // you add any child components.
@@ -73,7 +79,7 @@ void MainComponent::loadAssets(void)
         false));
 
     midiFile.readFrom(*input);
-    midiFile.setTicksPerQuarterNote(90);    /* default bpm */
+    midiTicksPerQuarterNote = midiFile.getTimeFormat();
     midiFile.convertTimestampTicksToSeconds();
 }
 
@@ -91,14 +97,13 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-
     for (int sample = 0; sample < bufferToFill.buffer->getNumSamples(); sample++) {
         /* process midi track 0 */
         const juce::MidiMessageSequence* midiMessageSequence = midiFile.getTrack(0);
 
         double nextEvtTime = midiMessageSequence->getEventTime(midiIdx);
 
-        if ((nextEvtTime) <= timeCtr) {
+        while((nextEvtTime) <= timeCtr) {
             juce::MidiMessageSequence::MidiEventHolder* midiEvent =
                 midiMessageSequence->getEventPointer(midiIdx);
 
@@ -125,6 +130,8 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
                 midiIdx = 0;
                 timeCtr = 0;
             }
+
+            nextEvtTime = midiMessageSequence->getEventTime(midiIdx);
         }
             
         float newSample = 0;
@@ -136,7 +143,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
             bufferToFill.buffer->setSample(channel, sample, newSample);
         }
 
-        timeCtr += 1 / _sampleRate;
+        timeCtr += bpm / midiTicksPerQuarterNote / _sampleRate;
     }
 }
 
@@ -164,6 +171,5 @@ void MainComponent::resized()
     // update their positions.
     auto r = getLocalBounds().reduced(4);
 
-    midiLabel.setBounds(r);
-    samplesLabel.setBounds(r);
+    bpmSlider.setBounds(r);
 }
