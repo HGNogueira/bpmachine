@@ -29,53 +29,23 @@ private:
     float timeCtr = 0;
     double _sampleRate;
 
-    std::vector<float> audioSamples;
-    int audioCtr = 0;
+    std::vector< std::vector<float> > audioSnippets;
+    std::vector<int> audioCtr;
 
     juce::MidiFile midiFile;
-    std::vector<int> midiIdx;
+    int midiIdx = 0;
 
     juce::AudioFormatManager formatManager;
-    juce::TimeSliceThread thread{ "audio file preview" };
-    juce::DirectoryContentsList directoryList{ nullptr, thread };
-    juce::FileTreeComponent fileTreeComp{ directoryList };
 
     juce::Label midiLabel{ {}, "Midi file: none" };
     juce::Label samplesLabel{ {}, "Samples file: none" };
 
     void selectionChanged() override {}
     void fileClicked(const juce::File&, const juce::MouseEvent&) override {}
-    void fileDoubleClicked(const juce::File&) override {
-        juce::File selectedFile = fileTreeComp.getSelectedFile();
-        
-        if (!selectedFile.getFileExtension().toLowerCase().compare(".mid") ||
-            !selectedFile.getFileExtension().toLowerCase().compare(".midi")) {
-            /* Load midi file */
-            midiLabel.setText("Midi file: " + selectedFile.getFileName(), juce::dontSendNotification);
-
-            midiFile.readFrom(juce::FileInputStream(selectedFile));
-            midiFile.convertTimestampTicksToSeconds();
-            timeCtr = 0;
-            midiIdx = std::vector<int>(midiFile.getNumTracks(), 0);
-        }
-        else {
-            /* Try to load audio file */
-            juce::AudioFormatReader* reader = formatManager.createReaderFor(selectedFile);
-
-            if (reader != nullptr) {
-                /* Load audio file as audioSamples */
-                samplesLabel.setText("Samples file: " + selectedFile.getFileName(), juce::dontSendNotification);
-
-                audioSamples = std::vector<float>(reader->lengthInSamples);
-                std::array<float*, 1>channels = { audioSamples.data() };
-                reader->read(channels.data(), 1, 0, audioSamples.size());
-
-                delete reader;
-            }
-        }
-        
-    }
+    void fileDoubleClicked(const juce::File&) override {}
     void browserRootChanged(const juce::File&) override {}
+
+    void loadAssets(void);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

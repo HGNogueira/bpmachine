@@ -3,6 +3,15 @@
 <JUCERPROJECT id="Hp9bDp" name="beatPlayer" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="rWVGZo" name="beatPlayer">
+    <GROUP id="{7BDEB1C2-5E2B-2BDA-403B-074E1BCC9510}" name="assets">
+      <FILE id="H2cExy" name="802__bdu__closehatac.wav" compile="0" resource="1"
+            file="../assets/802__bdu__closehatac.wav"/>
+      <FILE id="Zj89Sp" name="82249__kevoy__acoustic-snare.wav" compile="0"
+            resource="1" file="../assets/82249__kevoy__acoustic-snare.wav"/>
+      <FILE id="XPOJfR" name="264601__veiler__kick-swedish.wav" compile="0"
+            resource="1" file="../assets/264601__veiler__kick-swedish.wav"/>
+      <FILE id="PkuEx6" name="drum loop.mid" compile="0" resource="1" file="../assets/drum loop.mid"/>
+    </GROUP>
     <GROUP id="{6B325654-3800-E888-C6EA-324BA40D3748}" name="Source">
       <FILE id="L8v84e" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="eJUWnP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
