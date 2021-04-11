@@ -55,29 +55,48 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // but be careful - it will be called on the audio thread, not the GUI thread.
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
+    _sampleRate = sampleRate;
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    int srcSize = audioSamples.size();
+    if (audioSamples.size() > 0) {
 
-    if (srcSize > 0) {
-        /* loop through audio */
-        audioCtr = audioCtr % srcSize;
+        for (int sample = 0; sample < bufferToFill.buffer->getNumSamples(); sample++) {
+            for (int midiTrack = 0; midiTrack < midiFile.getNumTracks(); midiTrack++) {
+                const juce::MidiMessageSequence * midiMessageSequence = midiFile.getTrack(midiTrack);
 
-        for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); channel++) {
-            float* channelPtr = bufferToFill.buffer->getWritePointer(channel);
-            for (int sample = 0; sample < bufferToFill.buffer->getNumSamples(); sample++) {
-                channelPtr[sample] = audioSamples[(audioCtr + sample) % srcSize];
+                if (midiIdx[midiTrack] < midiMessageSequence->getNumEvents()) {
+                    double nextEvtTime = midiMessageSequence->getEventTime(midiIdx[midiTrack]);
+
+                    if ((nextEvtTime) <= timeCtr) {
+                        /* new event, is it an on event */
+
+                        juce::MidiMessageSequence::MidiEventHolder* midiEvent =
+                            midiMessageSequence->getEventPointer(midiIdx[midiTrack]++);
+
+                        if (midiEvent->message.isNoteOn()) {
+                            /* restart audioCtr */
+                            audioCtr = 0;
+                        }
+                    }
+                }
             }
-        }
+            
+            float newSample =
+                audioCtr < audioSamples.size() ? audioSamples[audioCtr++] :
+                0;
 
-        audioCtr = (audioCtr + bufferToFill.buffer->getNumSamples()) % srcSize;
+            for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); channel++) {
+                bufferToFill.buffer->setSample(channel, sample, newSample);
+            }
+
+            timeCtr += 1 / _sampleRate;
+        }
     }
     else {
         bufferToFill.clearActiveBufferRegion();
     }
-    
 }
 
 void MainComponent::releaseResources()

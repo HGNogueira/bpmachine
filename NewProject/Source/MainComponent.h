@@ -26,11 +26,14 @@ public:
 
 private:
     //==============================================================================
-    // Your private member variables go here...
+    float timeCtr = 0;
+    double _sampleRate;
+
     std::vector<float> audioSamples;
     int audioCtr = 0;
 
     juce::MidiFile midiFile;
+    std::vector<int> midiIdx;
 
     juce::AudioFormatManager formatManager;
     juce::TimeSliceThread thread{ "audio file preview" };
@@ -51,8 +54,9 @@ private:
             midiLabel.setText("Midi file: " + selectedFile.getFileName(), juce::dontSendNotification);
 
             midiFile.readFrom(juce::FileInputStream(selectedFile));
-
-            std::cout << "Loaded MIDI file\n";
+            midiFile.convertTimestampTicksToSeconds();
+            timeCtr = 0;
+            midiIdx = std::vector<int>(midiFile.getNumTracks(), 0);
         }
         else {
             /* Try to load audio file */
