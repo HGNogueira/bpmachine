@@ -15,8 +15,15 @@ MainComponent::MainComponent()
         [this](void) {
             bpm = bpmSlider.getValue();
         };
-
+    
+    addAndMakeVisible(filenameComponent[0]);
+    addAndMakeVisible(filenameComponent[1]);
+    addAndMakeVisible(filenameComponent[2]);
     addAndMakeVisible(bpmSlider);
+
+    filenameComponent[0].addListener(this);
+    filenameComponent[1].addListener(this);
+    filenameComponent[2].addListener(this);
 
     // Make sure you set the size of the component after
     // you add any child components.
@@ -40,6 +47,21 @@ MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
+}
+
+void MainComponent::loadSnippet(juce::File& inputFile, int snippetNumber)
+{
+    std::unique_ptr <juce::AudioFormatReader> reader(
+        formatManager.createReaderFor(inputFile));
+
+    if (reader != nullptr) {
+        audioSnippets[snippetNumber] = std::vector<float>(reader->lengthInSamples);
+        float* channel[1] = { audioSnippets[snippetNumber].data() };
+        reader->read(channel, 1, 0, audioSnippets[snippetNumber].size());
+
+        /* set audio counter at the end */
+        audioCtr[snippetNumber] = reader->lengthInSamples;
+    }
 }
 
 //==============================================================================
@@ -170,6 +192,9 @@ void MainComponent::resized()
     // If you add any child components, this is where you should
     // update their positions.
     auto r = getLocalBounds().reduced(4);
+    filenameComponent[0].setBounds(r.removeFromTop(20));
+    filenameComponent[1].setBounds(r.removeFromTop(20));
+    filenameComponent[2].setBounds(r.removeFromTop(20));
 
     bpmSlider.setBounds(r);
 }
