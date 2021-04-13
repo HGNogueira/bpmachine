@@ -15,15 +15,17 @@ MainComponent::MainComponent()
         [this](void) {
             bpm = bpmSlider.getValue();
         };
-    
-    addAndMakeVisible(filenameComponent[0]);
-    addAndMakeVisible(filenameComponent[1]);
-    addAndMakeVisible(filenameComponent[2]);
     addAndMakeVisible(bpmSlider);
-
-    filenameComponent[0].addListener(this);
-    filenameComponent[1].addListener(this);
-    filenameComponent[2].addListener(this);
+    
+    for (auto& fComp : filenameComponent) {
+        addAndMakeVisible(fComp);
+        fComp.addListener(this);
+    }
+        
+    for (auto& noteText : notesText) {
+        addAndMakeVisible(noteText);
+        noteText.addListener(this);
+    } 
 
     // Make sure you set the size of the component after
     // you add any child components.
@@ -192,9 +194,12 @@ void MainComponent::resized()
     // If you add any child components, this is where you should
     // update their positions.
     auto r = getLocalBounds().reduced(4);
-    filenameComponent[0].setBounds(r.removeFromTop(20));
-    filenameComponent[1].setBounds(r.removeFromTop(20));
-    filenameComponent[2].setBounds(r.removeFromTop(20));
+
+    for (int i = 0; i < 3; i++) {
+        auto textAndFileRegion = r.removeFromTop(20);
+        notesText[i].setBounds(textAndFileRegion.removeFromLeft(40));
+        filenameComponent[i].setBounds(textAndFileRegion);
+    }
 
     bpmSlider.setBounds(r);
 }

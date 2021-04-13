@@ -9,8 +9,8 @@
     your controls and content.
 */
 class MainComponent  : public juce::AudioAppComponent,
-                       private juce::FileBrowserListener,
-                       public juce::FilenameComponentListener
+                       public juce::FilenameComponentListener,
+                       public juce::TextEditor::Listener
 {
 public:
     //==============================================================================
@@ -40,6 +40,11 @@ public:
         }
     };
 
+    void textEditorTextChanged(juce::TextEditor & textEditor) override
+    {
+        /*TODO: respond to textBox changes */
+    }
+
     void MainComponent::loadSnippet(juce::File& inputFile, int snippetNumber);
 private:
     //==============================================================================
@@ -57,18 +62,14 @@ private:
     juce::AudioFormatManager formatManager;
 
     juce::File snippetFile[3];
+
+    /* components */
+    juce::TextEditor notesText[3];
     juce::FilenameComponent filenameComponent[3]{
         { "snippet_0", snippetFile[0], false, false, false, "*", {}, "Select snippet file 0" },
         { "snippet_1", snippetFile[1], false, false, false, "*", {}, "Select snippet file 1" },
         { "snippet_2", snippetFile[2], false, false, false, "*", {}, "Select snippet file 2" }};
-
-    /* components */
     juce::Slider bpmSlider{ juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::TextBoxBelow };
-
-    void selectionChanged() override {}
-    void fileClicked(const juce::File&, const juce::MouseEvent&) override {}
-    void fileDoubleClicked(const juce::File&) override {}
-    void browserRootChanged(const juce::File&) override {}
 
     void loadAssets(void);
 
