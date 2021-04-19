@@ -10,10 +10,10 @@ MainComponent::MainComponent()
         1,
         240,
         1);
-    bpmSlider.setValue(bpm, juce::NotificationType::dontSendNotification);
+    bpmSlider.setValue(bpmachine.getBpm(), juce::NotificationType::dontSendNotification);
     bpmSlider.onValueChange = 
         [this](void) {
-            bpm = bpmSlider.getValue();
+            bpmachine.setBpm(bpmSlider.getValue());
         };
     addAndMakeVisible(bpmSlider);
     
@@ -26,6 +26,16 @@ MainComponent::MainComponent()
         addAndMakeVisible(noteText);
         noteText.addListener(this);
     } 
+    juce::Path shape;
+
+    shape.addLineSegment({ 0.5, 0, 0.5, 1 }, 0.1);
+    shape.addLineSegment({ 0, 0.5, 1, 0.5 }, 0.1);
+    plusButton.setShape(
+        shape,
+        true,
+        true,
+        true);
+    addAndMakeVisible(plusButton);
 
     // Make sure you set the size of the component after
     // you add any child components.
@@ -51,26 +61,9 @@ MainComponent::~MainComponent()
     shutdownAudio();
 }
 
-void MainComponent::loadSnippet(juce::File& inputFile, int snippetNumber)
-{
-    std::unique_ptr <juce::AudioFormatReader> reader(
-        formatManager.createReaderFor(inputFile));
-
-    if (reader != nullptr) {
-        audioSnippets[snippetNumber] = std::vector<float>(reader->lengthInSamples);
-        float* channel[1] = { audioSnippets[snippetNumber].data() };
-        reader->read(channel, 1, 0, audioSnippets[snippetNumber].size());
-
-        /* set audio counter at the end */
-        audioCtr[snippetNumber] = reader->lengthInSamples;
-    }
-}
-
 //==============================================================================
 void MainComponent::loadAssets(void)
 {
-    formatManager.registerBasicFormats();
-
     /* audio snippets binary data description table */
     std::vector< std::tuple<const char*, const int> > snippetsDesc = {
         {BinaryData::_82249__kevoy__acousticsnare_wav, BinaryData::_82249__kevoy__acousticsnare_wavSize},
@@ -79,96 +72,33 @@ void MainComponent::loadAssets(void)
     };
 
     /* read binary data as audio samples */
-    for (auto& entry : snippetsDesc) {
+    for (int i = 0; i < snippetsDesc.size(); i++) {
         std::unique_ptr<juce::MemoryInputStream> input(new juce::MemoryInputStream(
-            std::get<0>(entry),
-            std::get<1>(entry),
+            std::get<0>(snippetsDesc[i]),
+            std::get<1>(snippetsDesc[i]),
             false));
 
-        std::unique_ptr <juce::AudioFormatReader> reader(
-            formatManager.createReaderFor(std::move(input)));
-
-        audioSnippets.push_back(std::vector<float>(reader->lengthInSamples));
-        float* channel[1] = { audioSnippets.back().data() };
-        reader->read(channel, 1, 0, audioSnippets.back().size());
-
-        /* set audio counter at the end */
-        audioCtr.push_back(reader->lengthInSamples);
+        bpmachine.loadSnippet(std::move(input),
+            i == 0 ? 38 :
+            i == 1 ? 40 :
+            46);
     }
-
-    /* load midi data */
-    std::unique_ptr<juce::MemoryInputStream> input(new juce::MemoryInputStream(
+    
+    juce::MemoryInputStream midiStream(
         BinaryData::drum_loop_mid,
         BinaryData::drum_loop_midSize,
-        false));
-
-    midiFile.readFrom(*input);
-    midiTicksPerQuarterNote = midiFile.getTimeFormat();
-    midiFile.convertTimestampTicksToSeconds();
+        false);
+    bpmachine.loadMidiFile(midiStream);
 }
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    // This function will be called when the audio device is started, or when
-    // its settings (i.e. sample rate, block size, etc) are changed.
-
-    // You can use this function to initialise any resources you might need,
-    // but be careful - it will be called on the audio thread, not the GUI thread.
-
-    // For more details, see the help for AudioProcessor::prepareToPlay()
-    _sampleRate = sampleRate;
+    bpmachine.setSampleRate(sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    for (int sample = 0; sample < bufferToFill.buffer->getNumSamples(); sample++) {
-        /* process midi track 0 */
-        const juce::MidiMessageSequence* midiMessageSequence = midiFile.getTrack(0);
-
-        double nextEvtTime = midiMessageSequence->getEventTime(midiIdx);
-
-        while((nextEvtTime) <= timeCtr) {
-            juce::MidiMessageSequence::MidiEventHolder* midiEvent =
-                midiMessageSequence->getEventPointer(midiIdx);
-
-            if (midiEvent->message.isNoteOn()) {
-                int note = midiEvent->message.getNoteNumber();
-                switch (note) {
-                    case 38:
-                        audioCtr[0] = 0;
-                        break;
-                    case 40:
-                        audioCtr[1] = 0;
-                        break;
-                    case 46:
-                        audioCtr[2] = 0;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            /* increment and wrap midiIdx + timerCtr */
-            midiIdx++;
-            if (midiIdx == midiMessageSequence->getNumEvents()) {
-                midiIdx = 0;
-                timeCtr = 0;
-            }
-
-            nextEvtTime = midiMessageSequence->getEventTime(midiIdx);
-        }
-            
-        float newSample = 0;
-        for (int i = 0; i < audioSnippets.size(); i++) {
-            newSample += audioCtr[i] < audioSnippets[i].size() ? audioSnippets[i][audioCtr[i]++] : 0;
-        }
-
-        for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); channel++) {
-            bufferToFill.buffer->setSample(channel, sample, newSample);
-        }
-
-        timeCtr += bpm / midiTicksPerQuarterNote / _sampleRate;
-    }
+    bpmachine.getNextAudioBlock(bufferToFill);
 }
 
 void MainComponent::releaseResources()
@@ -200,6 +130,8 @@ void MainComponent::resized()
         notesText[i].setBounds(textAndFileRegion.removeFromLeft(40));
         filenameComponent[i].setBounds(textAndFileRegion);
     }
+
+    plusButton.setBounds(r.removeFromTop(80).withSizeKeepingCentre(120, 40));
 
     bpmSlider.setBounds(r);
 }

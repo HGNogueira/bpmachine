@@ -3,6 +3,9 @@
 #include <JuceHeader.h>
 #include <vector>
 
+#include "bpmachine.h"
+
+
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
@@ -30,13 +33,13 @@ public:
     {
         const juce::String& fileComponentName = fileComponentThatHasChanged->getName();
         if (fileComponentName == "snippet_0") {
-            loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 0);
+            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 42);
         }
         else if (fileComponentName == "snippet_1") {
-            loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 1);
+            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 43);
         }
         else if (fileComponentName == "snippet_2") {
-            loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 2);
+            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 44);
         }
     };
 
@@ -44,23 +47,8 @@ public:
     {
         /*TODO: respond to textBox changes */
     }
-
-    void MainComponent::loadSnippet(juce::File& inputFile, int snippetNumber);
 private:
     //==============================================================================
-    float timeCtr = 0;
-    double _sampleRate;
-    float bpm = 120;
-
-    std::vector< std::vector<float> > audioSnippets;
-    std::vector<int> audioCtr;
-
-    juce::MidiFile midiFile;
-    int midiTicksPerQuarterNote;
-    int midiIdx = 0;
-
-    juce::AudioFormatManager formatManager;
-
     juce::File snippetFile[3];
 
     /* components */
@@ -70,8 +58,12 @@ private:
         { "snippet_1", snippetFile[1], false, false, false, "*", {}, "Select snippet file 1" },
         { "snippet_2", snippetFile[2], false, false, false, "*", {}, "Select snippet file 2" }};
     juce::Slider bpmSlider{ juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::TextBoxBelow };
+    juce::ShapeButton plusButton{"", juce::Colours::grey, juce::Colours::white, juce::Colours::black};
+
 
     void loadAssets(void);
+
+    BpMachine bpmachine;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

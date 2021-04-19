@@ -13,6 +13,8 @@
       <FILE id="PkuEx6" name="drum loop.mid" compile="0" resource="1" file="../assets/drum loop.mid"/>
     </GROUP>
     <GROUP id="{6B325654-3800-E888-C6EA-324BA40D3748}" name="Source">
+      <FILE id="FrJugQ" name="bpmachine.c" compile="1" resource="0" file="Source/bpmachine.c"/>
+      <FILE id="h0yQ0Y" name="bpmachine.h" compile="0" resource="0" file="Source/bpmachine.h"/>
       <FILE id="L8v84e" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="eJUWnP" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="FjedV8" name="MainComponent.cpp" compile="1" resource="0"
