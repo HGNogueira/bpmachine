@@ -75,7 +75,8 @@ void BpMachine::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFi
                 /* push new active snippet of a given note */
                 const int note = midiEvent->message.getNoteNumber();
                 const int offset = 0;
-                activeSnippets.push_front({ note, offset });
+                const float velocity = midiEvent->message.getFloatVelocity();
+                activeSnippets.push_front({ note, offset, velocity });
             }
 
             /* increment and wrap midiIdx + timerCtr */
@@ -93,6 +94,7 @@ void BpMachine::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFi
             auto& activeSnippet = *it;
             const int note = std::get<0>(activeSnippet);
             auto& offset = std::get<1>(activeSnippet);
+            const float velocity = std::get<2>(activeSnippet);
             auto& snippetSamples = snippetsMap[note];
             
            
@@ -100,7 +102,7 @@ void BpMachine::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFi
                 /* reached end of snippet -> remove from list */
                 it = activeSnippets.erase(it);
             } else {
-                newSample += snippetSamples[offset++];
+                newSample += snippetSamples[offset++] * velocity;
 
                 it++;
             }

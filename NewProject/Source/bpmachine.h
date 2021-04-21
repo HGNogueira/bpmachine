@@ -63,7 +63,7 @@ private:
 
     std::unique_ptr<juce::AudioFormatManager> audioFormatManager;
     std::map<int, std::vector<float>> snippetsMap;
-    std::list<std::tuple<int, int>> activeSnippets;
+    std::list<std::tuple<int, int, float>> activeSnippets;
 
     juce::MidiFile midiFile;
     int midiTicksPerQuarterNote = 1;

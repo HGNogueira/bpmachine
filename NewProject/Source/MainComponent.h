@@ -33,13 +33,13 @@ public:
     {
         const juce::String& fileComponentName = fileComponentThatHasChanged->getName();
         if (fileComponentName == "snippet_0") {
-            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 42);
+            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 38);
         }
         else if (fileComponentName == "snippet_1") {
-            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 43);
+            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 40);
         }
         else if (fileComponentName == "snippet_2") {
-            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 44);
+            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 46);
         }
     };
 
