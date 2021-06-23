@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="Hp9bDp" name="demo" projectType="guiapp" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              maxBinaryFileSize="20971520">
   <MAINGROUP id="rWVGZo" name="demo">
     <GROUP id="{7BDEB1C2-5E2B-2BDA-403B-074E1BCC9510}" name="assets">
-      <FILE id="H2cExy" name="802__bdu__closehatac.wav" compile="0" resource="1"
+      <FILE id="ChHFlv" name="802__bdu__closehatac.wav" compile="0" resource="1"
             file="../assets/802__bdu__closehatac.wav"/>
-      <FILE id="Zj89Sp" name="82249__kevoy__acoustic-snare.wav" compile="0"
+      <FILE id="Bx7uah" name="82249__kevoy__acoustic-snare.wav" compile="0"
             resource="1" file="../assets/82249__kevoy__acoustic-snare.wav"/>
-      <FILE id="XPOJfR" name="264601__veiler__kick-swedish.wav" compile="0"
+      <FILE id="ZCWOVy" name="264601__veiler__kick-swedish.wav" compile="0"
             resource="1" file="../assets/264601__veiler__kick-swedish.wav"/>
-      <FILE id="PkuEx6" name="drum loop.mid" compile="0" resource="1" file="../assets/drum loop.mid"/>
+      <FILE id="tJoOxz" name="drum loop.mid" compile="0" resource="1" file="../assets/drum loop.mid"/>
     </GROUP>
     <GROUP id="{6B325654-3800-E888-C6EA-324BA40D3748}" name="Source">
       <FILE id="L8v84e" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
@@ -43,10 +44,10 @@
         <MODULEPATH id="juce_gui_extra" path="../../../../../JUCE/modules"/>
       </MODULEPATHS>
     </VS2019>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="bpmachine">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../../bpmachine" libraryPath="../../../bpmachine/Builds/VisualStudio2019/x64/Debug/Static Library"/>
-        <CONFIGURATION isDebug="0" name="Release" headerPath="../../../bpmachine" libraryPath="../../../bpmachine/Builds/VisualStudio2019/x64/Debug/Static Library"/>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../../bpmachine" libraryPath="../../../bpmachine/Builds/macOSX/build/Debug/"/>
+        <CONFIGURATION isDebug="0" name="Release" headerPath="../../../bpmachine" libraryPath="../../../bpmachine/Builds/macOSX/build/Release/"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>
@@ -78,5 +79,6 @@
   </MODULES>
   <LIVE_SETTINGS>
     <WINDOWS/>
+    <OSX/>
   </LIVE_SETTINGS>
 </JUCERPROJECT>

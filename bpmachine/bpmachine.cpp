@@ -70,11 +70,13 @@ void BpMachine::loadMidiFile(juce::InputStream& input)
 }
 
 void BpMachine::loadMidiFile(juce::File& midiFile) {
-    loadMidiFile(juce::FileInputStream(midiFile));
+    juce::FileInputStream midiFileInputStream(midiFile);
+    loadMidiFile(midiFileInputStream);
 };
 
 void BpMachine::loadMidiFile(const juce::String& absolutePath) {
-    loadMidiFile(juce::File(absolutePath));
+    juce::File midiFile(absolutePath);
+    loadMidiFile(midiFile);
 };
 
 void BpMachine::getNextAudioBlock(float * output, int numSamples)

@@ -32,15 +32,19 @@ public:
     void filenameComponentChanged(juce::FilenameComponent* fileComponentThatHasChanged) override
     {
         const juce::String& fileComponentName = fileComponentThatHasChanged->getName();
+        juce::File snippetFile(fileComponentThatHasChanged->getCurrentFile());
+        int note;
         if (fileComponentName == "snippet_0") {
-            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 38);
+            note = 38;
+        } else if (fileComponentName == "snippet_1") {
+            note = 40;
+        } else if (fileComponentName == "snippet_2") {
+            note = 46;
+        } else {
+            return;
         }
-        else if (fileComponentName == "snippet_1") {
-            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 40);
-        }
-        else if (fileComponentName == "snippet_2") {
-            bpmachine.loadSnippet(fileComponentThatHasChanged->getCurrentFile(), 46);
-        }
+        
+        bpmachine.loadSnippet(snippetFile, note);
     };
 
     void textEditorTextChanged(juce::TextEditor & textEditor) override
