@@ -39,23 +39,18 @@ public:
         int note);
 
     /** loads midiFile data */
-    void loadMidiFile(juce::MemoryInputStream& input);
+    void loadMidiFile(juce::InputStream& input);
+    void loadMidiFile(juce::File& midiFile);
+    void loadMidiFile(const juce::String& absolutePath);
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
+    void getNextAudioBlock(float* output, int numSamples);
 
     void setBpm(double newBpm) { bpm = newBpm; };
     constexpr double getBpm() const { return bpm; };
 
     void setSampleRate(double newSampleRate);
 
-    /* TODO
-
-    void loadMidiFile(juce::File& inputFile);
-    
-    void getNextAudioBlock(const juce::AudioBuffer<float> input, juce::AudioBuffer<float> output);
-     */
-
-     /* IDEA: install event handler function to be called during playtime (e.g. note on, note off) */
 private:
     double sampleRate;
 

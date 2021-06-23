@@ -1,12 +1,17 @@
 # bpmachine
 
-This project implements a basic midi sequencer that can be used as a drum machine/metronome. It's using midi file sequences for practical reasons, so that we can easily createe different sequences to playback, and it accepts changes in bpm settings at runtime that result in smoothly changing playback speeds.
+This project implements a basic midi sequencer that can be used as a drum machine/metronome. It's using midi file sequences for practical reasons, so that we can easily create different sequences to playback using widely available tools. At runtime, it accepts changes in bpm value such that it results in smoothly changing playback speeds without affecting the sound of the individual samples.
 
 The scope of the project is narrow, and at the time of writing, the intention if to simply play around with the JUCE framework.
 
-# TODO
+# Building and running the demo
 
-* We want to separate the bpmachine logic from the demo app, as separate Class/static library. The app simply serves as a wrapper to play and test with.
-* The bpmachine class accepts dynamically loaded assets (i.e. audio snippets + midi files), although only one midi file can be assigned at a time.
-* Make use of more midi note information, like note velocity/amplitude.
-* Allow for the waveforms of the audio snippets to override each other, i.e. two consecutive hits of the same note **should not simply result in the resetting of the previous snippet**.
+The demo project implements a basic juce GUI application that runs the bpmachine. To build and run the demo **the bpmachine static library must be separately built first**.
+
+The [jucer file](demo/demo.jucer) has been configured to support *visual Studio 2019* and the *XCode (macOS)* toolchains. To support other toolchains the "Header Search Paths" and "Extra Library Search Paths" fields must be set accordingly.
+
+# TODO list
+
+Check comments at [bpmachine.cpp](bpmachine/bpmachine.cpp)
+
+
