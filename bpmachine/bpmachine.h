@@ -52,7 +52,7 @@ public:
 
     void loadMidiFile(juce::File& inputFile);
     
-    void getNextAudioBlock(juce::AudioBuffer<float> input, juce::AudioBuffer<float> output);
+    void getNextAudioBlock(const juce::AudioBuffer<float> input, juce::AudioBuffer<float> output);
      */
 
      /* IDEA: install event handler function to be called during playtime (e.g. note on, note off) */
@@ -60,13 +60,19 @@ private:
     double sampleRate;
 
     double bpm = 90;
+    int midiTicksPerQuarterNote = 1;
 
     std::unique_ptr<juce::AudioFormatManager> audioFormatManager;
+
+    /** @brief Midi file describing the active beat */
+    juce::MidiFile midiFile;
+
+    /** @brief Map of audio samples/snippets assets <note, samples> */
     std::map<int, std::vector<float>> snippetsMap;
+
+    /** @brief Describes set of active snippets being played back at the current instant */
     std::list<std::tuple<int, int, float>> activeSnippets;
 
-    juce::MidiFile midiFile;
-    int midiTicksPerQuarterNote = 1;
     int midiIdx = 0;
     double timeCtr = 0;
 };
